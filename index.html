@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Helpdesk – Report an Issue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2333;
+    --border: #2a3047;
+    --border2: #3a4260;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59,130,246,0.15);
+    --accent2: #f59e0b;
+    --text: #e8ecf4;
+    --text2: #8892a4;
+    --text3: #4f5a72;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Subtle grid pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(15,17,23,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .header-logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-logo .dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  .header-title {
+    font-size: 14px;
+    color: var(--text2);
+    margin-left: auto;
+  }
+
+  /* Main */
+  main {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(59,130,246,0.3);
+    padding: 5px 12px;
+    border-radius: 100px;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero h1 span {
+    color: var(--accent);
+  }
+
+  .hero p {
+    font-size: 15px;
+    color: var(--text2);
+    max-width: 420px;
+    line-height: 1.7;
+    margin: 0 auto;
+  }
+
+  /* Form card */
+  .card {
+    width: 100%;
+    max-width: 600px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-header-dots { display: flex; gap: 5px; }
+  .card-header-dots span {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .card-header-dots .r { background: #ef4444; }
+  .card-header-dots .y { background: #f59e0b; }
+  .card-header-dots .g { background: #10b981; }
+
+  .card-header-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    margin-left: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  .card-body {
+    padding: 1.75rem 1.75rem;
+  }
+
+  /* Form elements */
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.2rem;
+  }
+
+  .form-group:last-child { margin-bottom: 0; }
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--text2);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  label .req { color: var(--accent2); }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 0.65rem 0.9rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    appearance: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: var(--text3);
+  }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238892a4' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+  }
+
+  select option {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.6;
+  }
+
+  /* Priority selector */
+  .priority-group {
+    display: flex;
+    gap: 8px;
+  }
+
+  .priority-btn {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface2);
+    color: var(--text2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+
+  .priority-btn:hover { border-color: var(--border2); color: var(--text); }
+
+  .priority-btn.active-low {
+    border-color: var(--success);
+    color: var(--success);
+    background: rgba(16,185,129,0.08);
+  }
+
+  .priority-btn.active-medium {
+    border-color: var(--warning);
+    color: var(--warning);
+    background: rgba(245,158,11,0.08);
+  }
+
+  .priority-btn.active-high {
+    border-color: var(--danger);
+    color: var(--danger);
+    background: rgba(239,68,68,0.08);
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.5rem 0;
+  }
+
+  /* Submit button */
+  .btn-submit {
+    width: 100%;
+    padding: 0.85rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-submit:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(59,130,246,0.3);
+  }
+
+  .btn-submit:active { transform: translateY(0); }
+
+  .btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Success state */
+  .success-panel {
+    display: none;
+    text-align: center;
+    padding: 3rem 2rem;
+  }
+
+  .success-icon {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: rgba(16,185,129,0.12);
+    border: 1px solid rgba(16,185,129,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    font-size: 28px;
+  }
+
+  .success-panel h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--success);
+  }
+
+  .success-panel p {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  .ticket-id {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: 6px;
+    margin-top: 1rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .btn-new {
+    margin-top: 1.5rem;
+    padding: 10px 24px;
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text);
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-new:hover { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+
+  /* Help text */
+  .help-text {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* Footer */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 12px;
+    color: var(--text3);
+    border-top: 1px solid var(--border);
+  }
+
+  /* Spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: -3px;
+    margin-right: 6px;
+  }
+
+  @media (max-width: 480px) {
+    .form-row { grid-template-columns: 1fr; }
+    .card-body { padding: 1.25rem; }
+    main { padding: 2rem 1rem 4rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">
+    <span class="dot"></span>
+    IT HELPDESK
+  </div>
+  <div class="header-title">Employee Portal</div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="hero-badge">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M5 3v2l1 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      24/7 SUPPORT TICKETING
+    </div>
+    <h1>Report an <span>IT Issue</span></h1>
+    <p>Facing a technical problem? Submit a ticket and our IT team will get back to you shortly.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-dots">
+        <span class="r"></span><span class="y"></span><span class="g"></span>
+      </div>
+      <span class="card-header-title">new-ticket.form</span>
+    </div>
+
+    <div class="card-body" id="formPanel">
+      <form id="ticketForm" onsubmit="submitForm(event)">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Your Name <span class="req">*</span></label>
+            <input type="text" id="empName" placeholder="e.g. Rahul Sharma" required>
+          </div>
+          <div class="form-group">
+            <label>Desk / Seat No. <span class="req">*</span></label>
+            <input type="text" id="deskNo" placeholder="e.g. A-204" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Department</label>
+            <select id="department">
+              <option value="">Select department</option>
+              <option>HR</option>
+              <option>Finance</option>
+              <option>Sales</option>
+              <option>Operations</option>
+              <option>Marketing</option>
+              <option>IT</option>
+              <option>Management</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Issue Category <span class="req">*</span></label>
+            <select id="category" required>
+              <option value="">Select category</option>
+              <option>Hardware – Computer / Laptop</option>
+              <option>Hardware – Monitor / Display</option>
+              <option>Hardware – Keyboard / Mouse</option>
+              <option>Hardware – Printer / Scanner</option>
+              <option>Network – Internet / Wi-Fi</option>
+              <option>Network – VPN / Remote Access</option>
+              <option>Software – OS / Windows</option>
+              <option>Software – MS Office</option>
+              <option>Software – Application Error</option>
+              <option>Account – Password / Login</option>
+              <option>Account – Access / Permissions</option>
+              <option>Phone / Headset</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Priority Level <span class="req">*</span></label>
+          <div class="priority-group">
+            <button type="button" class="priority-btn active-low" onclick="setPriority('Low', this)">🟢 Low</button>
+            <button type="button" class="priority-btn" onclick="setPriority('Medium', this)">🟡 Medium</button>
+            <button type="button" class="priority-btn" onclick="setPriority('High', this)">🔴 High</button>
+          </div>
+          <input type="hidden" id="priority" value="Low">
+          <p class="help-text">Low = Not urgent &nbsp;|&nbsp; Medium = Affecting work &nbsp;|&nbsp; High = Cannot work at all</p>
+        </div>
+
+        <div class="form-group">
+          <label>Issue Title <span class="req">*</span></label>
+          <input type="text" id="issueTitle" placeholder="Brief summary of the problem" required>
+        </div>
+
+        <div class="form-group">
+          <label>Describe the Problem <span class="req">*</span></label>
+          <textarea id="description" placeholder="Explain what happened, what you were doing, any error messages you saw..." required></textarea>
+        </div>
+
+        <div class="divider"></div>
+
+        <button type="submit" class="btn-submit" id="submitBtn">
+          Submit Ticket →
+        </button>
+      </form>
+    </div>
+
+    <div class="success-panel" id="successPanel">
+      <div class="success-icon">✓</div>
+      <h2>Ticket Submitted!</h2>
+      <p>Your issue has been logged. The IT team will review it and reach out to you soon.</p>
+      <div class="ticket-id" id="ticketIdDisplay"></div>
+      <br>
+      <button class="btn-new" onclick="resetForm()">Submit Another Ticket</button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  IT Helpdesk System &nbsp;·&nbsp; For urgent issues, contact IT directly at your office.
+</footer>
+
+<script>
+  // ─── CONFIGURATION ──────────────────────────────────────────────
+  // Replace this with your Google Apps Script Web App URL
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxA5SNL9SD1kx7HZthNbFcVR9Br_bRrsI5oHHYklCg7PzXUijE3WSrAAq71kNwg2EWF/exec';
+  // ────────────────────────────────────────────────────────────────
+
+  let selectedPriority = 'Low';
+
+  function setPriority(level, btn) {
+    selectedPriority = level;
+    document.getElementById('priority').value = level;
+    document.querySelectorAll('.priority-btn').forEach(b => {
+      b.className = 'priority-btn';
+    });
+    if (level === 'Low') btn.classList.add('active-low');
+    else if (level === 'Medium') btn.classList.add('active-medium');
+    else if (level === 'High') btn.classList.add('active-high');
+  }
+
+  function generateTicketId() {
+    const now = new Date();
+    const dateStr = now.getFullYear().toString().slice(-2)
+      + String(now.getMonth()+1).padStart(2,'0')
+      + String(now.getDate()).padStart(2,'0');
+    const rand = Math.floor(1000 + Math.random() * 9000);
+    return `TKT-${dateStr}-${rand}`;
+  }
+
+  async function submitForm(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Submitting...';
+
+    const ticketId = generateTicketId();
+    const now = new Date();
+    const timestamp = now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+    const payload = {
+      ticketId,
+      timestamp,
+      empName: document.getElementById('empName').value.trim(),
+      deskNo: document.getElementById('deskNo').value.trim(),
+      department: document.getElementById('department').value || '—',
+      category: document.getElementById('category').value,
+      priority: selectedPriority,
+      issueTitle: document.getElementById('issueTitle').value.trim(),
+      description: document.getElementById('description').value.trim(),
+      status: 'Open'
+    };
+
+    try {
+      // JSONP-style GET request (works with Apps Script deployed as web app)
+      const params = new URLSearchParams({ ...payload, action: 'addComplaint' });
+      await fetch(`${APPS_SCRIPT_URL}?${params}`, { mode: 'no-cors' });
+    } catch (err) {
+      // no-cors means we won't get a response — that's expected
+    }
+
+    // Show success
+    document.getElementById('ticketIdDisplay').textContent = ticketId;
+    document.getElementById('formPanel').style.display = 'none';
+    document.getElementById('successPanel').style.display = 'block';
+
+    btn.disabled = false;
+    btn.innerHTML = 'Submit Ticket →';
+  }
+
+  function resetForm() {
+    document.getElementById('ticketForm').reset();
+    document.getElementById('formPanel').style.display = 'block';
+    document.getElementById('successPanel').style.display = 'none';
+    setPriority('Low', document.querySelectorAll('.priority-btn')[0]);
+  }
+</script>
+</body>
+</html>
